@@ -69,3 +69,23 @@ def read_metadata(path):
     if metadata is None:
         raise Exception(f"Rainbow cannot read {path}.")
     return metadata
+
+
+def read_metadata_and_channels(path):
+    """
+    Reads the metadata and channels for a chromatogram data directory. Main method of the package.
+
+    Args:
+        path (str): Path of the directory.
+
+    Returns:
+        Dictionary representing the metadata of the directory.
+
+    """
+    
+    ext = os.path.splitext(path)[1]
+    if ext.upper() == '.D':
+        channels_metadata = agilent.read_metadata_and_agilent(path)
+            
+
+    return channels_metadata
