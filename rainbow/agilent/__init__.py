@@ -28,7 +28,7 @@ def read(path, prec=0, hrms=False):
 
 def read_metadata(path):
     """
-    Reads metadata from an Agilent .D directory.
+    Reads metadata and channels from an Agilent .D directory.
 
     Args:
         path (str): Path of the directory.
@@ -39,42 +39,28 @@ def read_metadata(path):
     """
     datafiles = []
     metadata = chemstation.parse_metadata(path, datafiles)
+    if len(metadata) != 1:
+        for name in map(str.lower, os.listdir(path)):
+            if name.endswith('ch'):
+                metadata["Agilent .ch"] = True
+            elif name.endswith('uv'):
+                metadata["Agilent .uv"] = True
+            elif name.endswith('1.ms'):
+                metadata["Agilent .ms 1"] = True
+            elif name.endswith('2.ms'):
+                metadata["Agilent .ms 2"] = True
     if len(metadata) == 1:
         datadir = read(path)
-        return datadir.metadata if datadir else None
+        if not datadir:
+            return None
+        metadata = datadir.metadata
+        for name in [datafile.name.lower() for datafile in datadir.datafiles]:
+            if name.endswith('ch'):
+                metadata["Agilent .ch"] = True
+            elif name.endswith('uv'):
+                metadata["Agilent .uv"] = True
+            elif name.endswith('1.ms'):
+                metadata["Agilent .ms 1"] = True
+            elif name.endswith('2.ms'):
+                metadata["Agilent .ms 2"] = True
     return metadata
-
-
-
-def read_metadata_and_agilent(path):
-    """
-    Reads metadata and finds Agilent files from an Agilent .D directory.
-
-    Args:
-        path (str): Path of the directory.
-
-    Returns:
-        Dictionary representing metadata and agilent files present in the Agilent .D directory.
-
-    """
-    
-    agilent_files = {}
-    agilent_files.update(read_metadata(path))
-    for name in os.listdir(path):
-        filePath = os.path.join(path, name)
-        ext = os.path.splitext(filePath)[1].lower()
-
-        # Check if the file has a valid extension
-        if ext == '.ch':
-            agilent_files ["Agilent .ch"] = True
-        elif ext == '.uv':
-            agilent_files ["Agilent .uv"] = True
-        elif ext == '.ms':
-            if os.path.splitext(filePath)[0][-1] == '1':
-                agilent_files ["Agilent .ms 1"] = True
-            elif os.path.splitext(filePath)[0][-1] == '2':
-                agilent_files ["Agilent .ms 2"] = True
-            
-    
-
-    return agilent_files
