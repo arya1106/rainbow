@@ -2,5 +2,8 @@ __pycache__/
 docs/_build/*
 docs/_autosummary/*
 build/*
+dist/*
+.idea/*
+*.egg-info
 
 .DS_STORE
